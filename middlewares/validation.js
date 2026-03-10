@@ -66,7 +66,13 @@ export const validateRegister = [
     .notEmpty()
     .withMessage('La contraseña es obligatoria')
     .isLength({ min: 8, max: 255 })
-    .withMessage('La contraseña debe tener entre 8 y 255 caracteres'),
+    .withMessage('La contraseña debe tener entre 8 y 255 caracteres')
+    .matches(/[A-Z]/)
+    .withMessage('La contraseña debe contener al menos una letra mayúscula')
+    .matches(/[a-z]/)
+    .withMessage('La contraseña debe contener al menos una letra minúscula')
+    .matches(/[0-9]/)
+    .withMessage('La contraseña debe contener al menos un número'),
 
   body('phone')
     .notEmpty()
@@ -124,8 +130,14 @@ export const validateResetPassword = [
   body('newPassword')
     .notEmpty()
     .withMessage('La nueva contraseña es obligatoria')
-    .isLength({ min: 8 })
-    .withMessage('La nueva contraseña debe tener al menos 8 caracteres'),
+    .isLength({ min: 8, max: 255 })
+    .withMessage('La nueva contraseña debe tener entre 8 y 255 caracteres')
+    .matches(/[A-Z]/)
+    .withMessage('La nueva contraseña debe contener al menos una letra mayúscula')
+    .matches(/[a-z]/)
+    .withMessage('La nueva contraseña debe contener al menos una letra minúscula')
+    .matches(/[0-9]/)
+    .withMessage('La nueva contraseña debe contener al menos un número'),
 
   handleValidationErrors,
 ];
@@ -177,8 +189,14 @@ export const validateChangePassword = [
   body('newPassword')
     .notEmpty()
     .withMessage('La nueva contraseña es obligatoria')
-    .isLength({ min: 8 })
-    .withMessage('La nueva contraseña debe tener al menos 8 caracteres'),
+    .isLength({ min: 8, max: 255 })
+    .withMessage('La nueva contraseña debe tener entre 8 y 255 caracteres')
+    .matches(/[A-Z]/)
+    .withMessage('La nueva contraseña debe contener al menos una letra mayúscula')
+    .matches(/[a-z]/)
+    .withMessage('La nueva contraseña debe contener al menos una letra minúscula')
+    .matches(/[0-9]/)
+    .withMessage('La nueva contraseña debe contener al menos un número'),
 
   handleValidationErrors,
 ];
@@ -486,8 +504,7 @@ export const validateDateRangeQuery = [
 // ── Validaciones para el endpoint de exportación
 export const validateExportQuery = [
   query('format')
-    .notEmpty()
-    .withMessage('El formato de exportación es obligatorio')
+    .optional()
     .isIn(EXPORT_FORMATS)
     .withMessage(`format debe ser uno de: ${EXPORT_FORMATS.join(', ')}`),
 
@@ -562,6 +579,66 @@ export const validateZoneRankingQuery = [
     .optional()
     .isIn(REPORT_STATUSES)
     .withMessage(`status debe ser uno de: ${REPORT_STATUSES.join(', ')}`),
+
+  handleValidationErrors,
+];
+// Validaciones para GET /stats/heatmap-grid
+export const validateHeatmapGridQuery = [
+  query('cellDegrees')
+    .optional()
+    .isFloat({ min: 0.001, max: 0.1 })
+    .withMessage('cellDegrees debe ser un número decimal entre 0.001 y 0.1 (grados)')
+    .toFloat(),
+
+  query('category')
+    .optional()
+    .isIn(REPORT_CATEGORIES)
+    .withMessage(`category debe ser uno de: ${REPORT_CATEGORIES.join(', ')}`),
+
+  query('priority')
+    .optional()
+    .isIn(REPORT_PRIORITIES)
+    .withMessage(`priority debe ser uno de: ${REPORT_PRIORITIES.join(', ')}`),
+
+  query('status')
+    .optional()
+    .isIn(REPORT_STATUSES)
+    .withMessage(`status debe ser uno de: ${REPORT_STATUSES.join(', ')}`),
+
+  handleValidationErrors,
+];
+
+// ── Validaciones para POST /reports/check-duplicates 
+export const validateCheckDuplicates = [
+  body('title')
+    .trim()
+    .notEmpty()
+    .withMessage('El título es obligatorio')
+    .isLength({ min: 3, max: 150 })
+    .withMessage('El título debe tener entre 3 y 150 caracteres'),
+
+  body('description')
+    .trim()
+    .notEmpty()
+    .withMessage('La descripción es obligatoria')
+    .isLength({ min: 10, max: 2000 })
+    .withMessage('La descripción debe tener entre 10 y 2000 caracteres'),
+
+  body('category')
+    .notEmpty()
+    .withMessage('La categoría es obligatoria')
+    .isIn(REPORT_CATEGORIES)
+    .withMessage(`La categoría debe ser una de: ${REPORT_CATEGORIES.join(', ')}`),
+
+  body('latitude')
+    .optional({ nullable: true })
+    .isFloat({ min: -90, max: 90 })
+    .withMessage('La latitud debe estar entre -90 y 90'),
+
+  body('longitude')
+    .optional({ nullable: true })
+    .isFloat({ min: -180, max: 180 })
+    .withMessage('La longitud debe estar entre -180 y 180'),
 
   handleValidationErrors,
 ];
